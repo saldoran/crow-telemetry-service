@@ -1,10 +1,15 @@
 #include "third_party/crow_all.h"
-#include <iostream>
+#include "telemetry/TelemetryService.h"
+#include "telemetry/APIController.h"
 
 int main() {
-    std::cout << "Crow test build OK!\n";
-    // Можно запустить минимальный сервер:
     crow::SimpleApp app;
-    app.port(8080).multithreaded().run();
+
+    auto storage = std::make_shared<telemetry::TelemetryStorage>();
+    telemetry::TelemetryService service(storage);
+    telemetry::APIController controller(app, service);
+    controller.setupRoutes();
+
+    app.port(18080).multithreaded().run();
     return 0;
 }

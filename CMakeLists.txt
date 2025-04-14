@@ -14,15 +14,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(asio)
 
-# Создаём исполняемый файл
 add_executable(crow_test main.cpp)
 
-# Указываем include'ы: сначала Asio, потом crow_all.h
 target_include_directories(crow_test PRIVATE
   ${asio_SOURCE_DIR}/asio/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party  
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Потоки
 find_package(Threads REQUIRED)
 target_link_libraries(crow_test PRIVATE Threads::Threads)
+
+file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+)
+
+target_sources(crow_test PRIVATE
+  src/telemetry/TelemetryStorage.cpp
+  src/telemetry/TelemetryService.cpp
+  src/telemetry/APIController.cpp  
+  ${PROJECT_HEADERS}
+)

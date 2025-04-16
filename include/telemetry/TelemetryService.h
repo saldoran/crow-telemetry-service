@@ -14,7 +14,7 @@ public:
     void saveEvent(const std::string& eventName, const TelemetryEvent& event);
 
     // Calculates average value by saved events
-    double calculateMean(const std::string& eventName,
+    std::optional<double> calculateMean(const std::string& eventName,
                          std::optional<std::int64_t> start = std::nullopt,
                          std::optional<std::int64_t> end = std::nullopt,
                          const std::string& unit = "seconds");

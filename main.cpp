@@ -4,6 +4,7 @@
 
 int main() {
     crow::SimpleApp app;
+    //app.loglevel(crow::LogLevel::Warning);
 
     auto storage = std::make_shared<telemetry::TelemetryStorage>();
     telemetry::TelemetryService service(storage);

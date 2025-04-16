@@ -35,3 +35,12 @@ target_sources(crow_test PRIVATE
   src/telemetry/APIController.cpp  
   ${PROJECT_HEADERS}
 )
+
+find_package(Python3 COMPONENTS Interpreter QUIET)
+
+if(Python3_Interpreter_FOUND)
+  message(STATUS "Python3 found (${Python3_EXECUTABLE}), enabling unit tests")
+  add_subdirectory(tests)
+else()
+  message(STATUS "Python3 not found, skipping unit tests")
+endif()

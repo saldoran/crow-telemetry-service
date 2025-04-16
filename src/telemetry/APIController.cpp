@@ -13,15 +13,12 @@ namespace telemetry
     // Route for saving event via POST /paths/<event>
     CROW_ROUTE(m_app, "/paths/<string>")
     .methods("POST"_method)
-    ([this](const crow::request &req, crow::response &res, const std::string &eventName)
+    ([this](const crow::request &req, const std::string &eventName)  -> crow::response
     {
       auto body = crow::json::load(req.body);
       if (!body || !body.has("values") || !body.has("date"))
       {
-        res.code = 400;
-        res.write("Invalid JSON");
-        res.end();
-        return;
+        return crow::response(400, R"({"error":"Invalid JSON"})");
       }
       
       telemetry::TelemetryEvent ev;
@@ -33,14 +30,13 @@ namespace telemetry
       
       m_service.saveEvent(eventName, ev);
       
-      res.code = 200;
-      res.end();
+      return crow::response(201);
     });
 
     // Route for retrieving mean value via GET /paths/<event>/meanLength
     CROW_ROUTE(m_app, "/paths/<string>/meanLength")
       .methods("GET"_method)
-    ([this](const crow::request &req, crow::response &res, const std::string &eventName)
+    ([this](const crow::request &req, const std::string &eventName) -> crow::response
     {
       auto body = crow::json::load(req.body);
       std::string unit = "seconds";
@@ -55,14 +51,15 @@ namespace telemetry
         if (body.has("endTimestamp"))
           end = body["endTimestamp"].i();
       }
-      double mean = m_service.calculateMean(eventName, start, end, unit);
-      
+      auto optMean = m_service.calculateMean(eventName, start, end, unit);
+      if (!optMean)
+          return crow::response(404, "{\"error\":\"no data\"}");
+
       crow::json::wvalue res_json;
-      res_json["mean"] = mean;
-      
-      res.code = 200;
-      res.write(res_json.dump());
-      res.end();
+      res_json["mean"] = *optMean;
+
+      auto s = res_json.dump();
+      return crow::response{200, s};
     });
   }
 }

@@ -13,12 +13,12 @@ void TelemetryService::saveEvent(const std::string& eventName, const TelemetryEv
     m_storage->addEvent(eventName, event);
 }
 
-double TelemetryService::calculateMean(const std::string& eventName, std::optional<std::int64_t> start,
+std::optional<double> TelemetryService::calculateMean(const std::string& eventName, std::optional<std::int64_t> start,
                                          std::optional<std::int64_t> end,
                                          const std::string& unit) 
  {
     auto events = m_storage->getEvents(eventName, start, end);
-    if (events.empty()) return 0.0;
+    if (events.empty()) return std::nullopt;
     
     double total = 0.0;
     size_t count = 0;
